@@ -102,4 +102,39 @@ public class JobApplicationService {
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
+    
+    
+ // 5. Update an entire application
+    public JobApplicationResponseDTO updateApplication(String id, JobApplicationRequestDTO requestDTO) {
+        // Find existing application or throw exception
+        JobApplication existingApp = repository.findById(id)
+                .orElseThrow(() -> new ApplicationNotFoundException("Application not found with ID: " + id));
+
+        // Update fields
+        existingApp.setCompanyName(requestDTO.getCompanyName());
+        existingApp.setRole(requestDTO.getRole());
+        existingApp.setAppliedDate(requestDTO.getAppliedDate());
+        existingApp.setStatus(requestDTO.getStatus());
+        existingApp.setNotes(requestDTO.getNotes());
+        
+        // Recalculate heardBack
+        existingApp.setHeardBack(calculateHeardBack(requestDTO.getStatus()));
+
+        // Save and return
+        JobApplication updatedApp = repository.save(existingApp);
+        return mapToResponseDTO(updatedApp);
+    }
+
+    // 6. Update only the status
+    public JobApplicationResponseDTO updateStatus(String id, ApplicationStatus newStatus) {
+        JobApplication existingApp = repository.findById(id)
+                .orElseThrow(() -> new ApplicationNotFoundException("Application not found with ID: " + id));
+
+        existingApp.setStatus(newStatus);
+        existingApp.setHeardBack(calculateHeardBack(newStatus));
+
+        JobApplication updatedApp = repository.save(existingApp);
+        return mapToResponseDTO(updatedApp);
+    }
+    
 }

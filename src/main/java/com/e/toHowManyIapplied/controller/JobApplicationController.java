@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import com.e.toHowManyIapplied.dto.JobApplicationRequestDTO;
 import com.e.toHowManyIapplied.dto.JobApplicationResponseDTO;
+import com.e.toHowManyIapplied.dto.StatusUpdateDTO;
 import com.e.toHowManyIapplied.model.ApplicationStatus;
 import com.e.toHowManyIapplied.service.JobApplicationService;
 
@@ -60,5 +61,27 @@ public class JobApplicationController {
         
         List<JobApplicationResponseDTO> results = service.searchApplications(company, role, date, status);
         return ResponseEntity.ok(results);
+    }
+    
+
+
+    // 5. Update an entire application (PUT)
+    @PutMapping("/{id}")
+    public ResponseEntity<JobApplicationResponseDTO> updateApplication(
+            @PathVariable String id,
+            @Valid @RequestBody JobApplicationRequestDTO requestDTO) {
+        
+        JobApplicationResponseDTO updatedApplication = service.updateApplication(id, requestDTO);
+        return ResponseEntity.ok(updatedApplication);
+    }
+
+    // 6. Update application status (PATCH)
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<JobApplicationResponseDTO> updateStatus(
+            @PathVariable String id,
+            @Valid @RequestBody StatusUpdateDTO statusUpdateDTO) {
+        
+        JobApplicationResponseDTO updatedApplication = service.updateStatus(id, statusUpdateDTO.getStatus());
+        return ResponseEntity.ok(updatedApplication);
     }
 }
