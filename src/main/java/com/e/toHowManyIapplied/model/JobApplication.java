@@ -82,9 +82,9 @@ public class JobApplication {
 		this.notes = notes;
 	}
     
+
     
-    
-    JobApplication(){
+    public JobApplication(){
     	
     }
 }
