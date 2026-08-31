@@ -3,7 +3,7 @@ package com.e.toHowManyIapplied.service;
 
 
 import org.springframework.stereotype.Service;
-
+import java.time.LocalDate; 
 import com.e.toHowManyIapplied.dto.JobApplicationRequestDTO;
 import com.e.toHowManyIapplied.dto.JobApplicationResponseDTO;
 import com.e.toHowManyIapplied.exception.ApplicationNotFoundException;
@@ -79,5 +79,27 @@ public class JobApplicationService {
         responseDTO.setHeardBack(application.isHeardBack());
         responseDTO.setNotes(application.getNotes());
         return responseDTO;
+    }
+  
+
+    // ... inside JobApplicationService class:
+
+    public List<JobApplicationResponseDTO> searchApplications(String company, String role, LocalDate date, ApplicationStatus status) {
+        return repository.findAll().stream()
+                // If company is provided, check if companyName contains it (case-insensitive)
+                .filter(app -> company == null || app.getCompanyName().toLowerCase().contains(company.toLowerCase()))
+                
+                // If role is provided, check if role contains it (case-insensitive)
+                .filter(app -> role == null || app.getRole().toLowerCase().contains(role.toLowerCase()))
+                
+                // If date is provided, check for exact match
+                .filter(app -> date == null || app.getAppliedDate().equals(date))
+                
+                // If status is provided, check for exact match
+                .filter(app -> status == null || app.getStatus() == status)
+                
+                // Convert the filtered models to DTOs
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
     }
 }

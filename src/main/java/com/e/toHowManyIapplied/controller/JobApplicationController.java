@@ -4,9 +4,10 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.time.LocalDate;
 import com.e.toHowManyIapplied.dto.JobApplicationRequestDTO;
 import com.e.toHowManyIapplied.dto.JobApplicationResponseDTO;
+import com.e.toHowManyIapplied.model.ApplicationStatus;
 import com.e.toHowManyIapplied.service.JobApplicationService;
 
 import java.util.List;
@@ -43,5 +44,21 @@ public class JobApplicationController {
     public ResponseEntity<JobApplicationResponseDTO> getApplicationById(@PathVariable String id) {
         JobApplicationResponseDTO application = service.getApplicationById(id);
         return ResponseEntity.ok(application); // Returns 200 OK
+    }
+
+  
+
+    // ... inside JobApplicationController class:
+
+    // 4. Search and filter applications
+    @GetMapping("/search")
+    public ResponseEntity<List<JobApplicationResponseDTO>> searchApplications(
+            @RequestParam(required = false) String company,
+            @RequestParam(required = false) String role,
+            @RequestParam(required = false) LocalDate date,
+            @RequestParam(required = false) ApplicationStatus status) {
+        
+        List<JobApplicationResponseDTO> results = service.searchApplications(company, role, date, status);
+        return ResponseEntity.ok(results);
     }
 }
