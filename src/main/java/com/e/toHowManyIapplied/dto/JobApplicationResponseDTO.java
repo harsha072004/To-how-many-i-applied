@@ -38,4 +38,19 @@ public class JobApplicationResponseDTO {
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+    
+    
+    
+ // Add these two new fields
+    private long daysSinceApplied;
+    private LocalDate followUpDate;
+
+    // ... existing getters and setters ...
+
+    // Add getters and setters for the new fields
+    public long getDaysSinceApplied() { return daysSinceApplied; }
+    public void setDaysSinceApplied(long daysSinceApplied) { this.daysSinceApplied = daysSinceApplied; }
+
+    public LocalDate getFollowUpDate() { return followUpDate; }
+    public void setFollowUpDate(LocalDate followUpDate) { this.followUpDate = followUpDate; }
 }

@@ -4,6 +4,7 @@ package com.e.toHowManyIapplied.service;
 
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import com.e.toHowManyIapplied.dto.ApplicationStatisticsDTO;
 import com.e.toHowManyIapplied.dto.JobApplicationRequestDTO;
@@ -71,18 +72,7 @@ public class JobApplicationService {
                status != ApplicationStatus.WITHDRAWN;
     }
 
-    // Mapper method: Converts Domain Model to Response DTO
-    private JobApplicationResponseDTO mapToResponseDTO(JobApplication application) {
-        JobApplicationResponseDTO responseDTO = new JobApplicationResponseDTO();
-        responseDTO.setId(application.getId());
-        responseDTO.setCompanyName(application.getCompanyName());
-        responseDTO.setRole(application.getRole());
-        responseDTO.setAppliedDate(application.getAppliedDate());
-        responseDTO.setStatus(application.getStatus());
-        responseDTO.setHeardBack(application.isHeardBack());
-        responseDTO.setNotes(application.getNotes());
-        return responseDTO;
-    }
+
   
 
     // ... inside JobApplicationService class:
@@ -175,4 +165,34 @@ public class JobApplicationService {
         return stats;
     }
     
+
+
+    // ... inside JobApplicationService ...
+
+    // Mapper method: Converts Domain Model to Response DTO
+    private JobApplicationResponseDTO mapToResponseDTO(JobApplication application) {
+        JobApplicationResponseDTO responseDTO = new JobApplicationResponseDTO();
+        responseDTO.setId(application.getId());
+        responseDTO.setCompanyName(application.getCompanyName());
+        responseDTO.setRole(application.getRole());
+        responseDTO.setAppliedDate(application.getAppliedDate());
+        responseDTO.setStatus(application.getStatus());
+        responseDTO.setHeardBack(application.isHeardBack());
+        responseDTO.setNotes(application.getNotes());
+
+        // --- NEW: Calculate Derived Fields ---
+        
+        // 1. Calculate days since applied
+        long days = ChronoUnit.DAYS.between(application.getAppliedDate(), LocalDate.now());
+        responseDTO.setDaysSinceApplied(days);
+
+        // 2. Suggest a follow-up date (14 days later) ONLY if we haven't heard back
+        if (!application.isHeardBack() && application.getStatus() != ApplicationStatus.WITHDRAWN) {
+            responseDTO.setFollowUpDate(application.getAppliedDate().plusDays(14));
+        } else {
+            responseDTO.setFollowUpDate(null); // No follow-up needed if they replied!
+        }
+
+        return responseDTO;
+    }
 }

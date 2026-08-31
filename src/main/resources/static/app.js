@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:8080/api/applications';
+// Change this line:
+const API_URL = 'http://localhost:8082/api/applications';
 
 // Runs when the page loads
 document.addEventListener('DOMContentLoaded', () => {
@@ -37,13 +38,25 @@ async function loadApplications(searchQuery = '') {
 
         applications.forEach(app => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${app.appliedDate}</td>
-                <td><strong>${app.companyName}</strong></td>
-                <td>${app.role}</td>
-                <td><span class="badge badge-${app.status}">${app.status.replace('_', ' ')}</span></td>
-                <td>${app.heardBack ? '✅ Yes' : '⏳ No'}</td>
-            `;
+			// Build the timeline HTML
+			            let timelineHtml = `<strong>${app.appliedDate}</strong><br><small style="color: #7f8c8d;">${app.daysSinceApplied} days ago</small>`;
+			            
+			            // If the backend suggested a follow-up date, show it!
+			            if (app.followUpDate) {
+			                timelineHtml += `<br><small style="color: #e67e22; font-weight: bold;">Follow-up: ${app.followUpDate}</small>`;
+			            }
+
+			            tr.innerHTML = `
+			                <td>${timelineHtml}</td>
+			                <td><strong>${app.companyName}</strong></td>
+			                <td>${app.role}</td>
+			                <td><span class="badge badge-${app.status}">${app.status.replace('_', ' ')}</span></td>
+			                <td>${app.heardBack ? '✅ Yes' : '⏳ No'}</td>
+			                <td>
+			                    <button class="action-btn btn-edit" onclick="editApplication('${app.id}')">Edit</button>
+			                    <button class="action-btn btn-delete" onclick="deleteApplication('${app.id}')">Delete</button>
+			                </td>
+			            `;
             tbody.appendChild(tr);
         });
     } catch (error) {
@@ -51,11 +64,33 @@ async function loadApplications(searchQuery = '') {
     }
 }
 
-// Handle Form Submission
-document.getElementById('add-form').addEventListener('submit', async (e) => {
-    e.preventDefault(); // Prevent page reload
+// Execute search based on filters
+function executeSearch() {
+    const company = document.getElementById('search-company').value.trim();
+    const role = document.getElementById('search-role').value.trim();
+    const status = document.getElementById('search-status').value;
 
-    // Build the request object
+    const params = new URLSearchParams();
+    if (company) params.append('company', company);
+    if (role) params.append('role', role);
+    if (status) params.append('status', status);
+
+    loadApplications(params.toString());
+}
+
+// Clear search filters and reload all data
+function resetSearch() {
+    document.getElementById('search-company').value = '';
+    document.getElementById('search-role').value = '';
+    document.getElementById('search-status').value = '';
+    loadApplications(); 
+}
+
+// Handle Form Submission (Create and Update)
+document.getElementById('add-form').addEventListener('submit', async (e) => {
+    e.preventDefault(); 
+
+    const id = document.getElementById('app-id').value; // Check if we are editing
     const newApp = {
         companyName: document.getElementById('companyName').value,
         role: document.getElementById('role').value,
@@ -66,20 +101,22 @@ document.getElementById('add-form').addEventListener('submit', async (e) => {
 
     const msgElement = document.getElementById('form-message');
     
+    // Determine if it's a POST or PUT
+    const method = id ? 'PUT' : 'POST';
+    const url = id ? `${API_URL}/${id}` : API_URL;
+    
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
+        const response = await fetch(url, {
+            method: method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newApp)
         });
 
         if (response.ok) {
             msgElement.style.color = 'green';
-            msgElement.innerText = 'Application added successfully!';
-            document.getElementById('add-form').reset();
-            document.getElementById('appliedDate').valueAsDate = new Date(); // reset date
+            msgElement.innerText = id ? 'Application updated successfully!' : 'Application added successfully!';
             
-            // Refresh dashboard data
+            cancelEdit(); // Clears the form and resets buttons
             loadStatistics();
             loadApplications();
         } else {
@@ -92,28 +129,59 @@ document.getElementById('add-form').addEventListener('submit', async (e) => {
         msgElement.innerText = 'Server error';
     }
     
-    setTimeout(() => msgElement.innerText = '', 3000); // Clear message after 3 seconds
+    setTimeout(() => msgElement.innerText = '', 3000); 
 });
-// Execute search based on filters
-function executeSearch() {
-    const company = document.getElementById('search-company').value.trim();
-    const role = document.getElementById('search-role').value.trim();
-    const status = document.getElementById('search-status').value;
 
-    // Build the query string using URLSearchParams (a clean way to handle URLs in JS)
-    const params = new URLSearchParams();
-    if (company) params.append('company', company);
-    if (role) params.append('role', role);
-    if (status) params.append('status', status);
-
-    // Call loadApplications with the constructed query string
-    loadApplications(params.toString());
+// Delete an application
+async function deleteApplication(id) {
+    if (!confirm("Are you sure you want to delete this application?")) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+            loadStatistics();
+            loadApplications();
+        } else {
+            alert("Failed to delete application.");
+        }
+    } catch (error) {
+        console.error('Error deleting:', error);
+    }
 }
 
-// Clear search filters and reload all data
-function resetSearch() {
-    document.getElementById('search-company').value = '';
-    document.getElementById('search-role').value = '';
-    document.getElementById('search-status').value = '';
-    loadApplications(); // Loads everything
+// Fetch application data and populate the form for editing
+async function editApplication(id) {
+    try {
+        const response = await fetch(`${API_URL}/${id}`);
+        const app = await response.json();
+        
+        // Populate form
+        document.getElementById('app-id').value = app.id;
+        document.getElementById('companyName').value = app.companyName;
+        document.getElementById('role').value = app.role;
+        document.getElementById('appliedDate').value = app.appliedDate;
+        document.getElementById('status').value = app.status;
+        document.getElementById('notes').value = app.notes || '';
+        
+        // Update UI for Edit Mode
+        document.getElementById('form-title').innerText = "Edit Application";
+        document.getElementById('submit-btn').innerText = "Update Application";
+        document.getElementById('cancel-edit-btn').style.display = "block";
+        
+        window.scrollTo(0, 0); // Scroll to top so user sees the form
+    } catch (error) {
+        console.error('Error fetching application for edit:', error);
+    }
+}
+
+// Reset form back to "Add Mode"
+function cancelEdit() {
+    document.getElementById('add-form').reset();
+    document.getElementById('app-id').value = '';
+    document.getElementById('appliedDate').valueAsDate = new Date(); // reset date to today
+    
+    // Reset UI
+    document.getElementById('form-title').innerText = "Add New Application";
+    document.getElementById('submit-btn').innerText = "Save Application";
+    document.getElementById('cancel-edit-btn').style.display = "none";
 }
