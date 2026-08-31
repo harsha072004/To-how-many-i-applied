@@ -24,10 +24,13 @@ async function loadStatistics() {
     }
 }
 
-// Fetch and display the table
-async function loadApplications() {
+// Fetch and display the table (Updated for Search)
+async function loadApplications(searchQuery = '') {
     try {
-        const response = await fetch(API_URL);
+        // If there's a search query, use the /search endpoint. Otherwise, use the base URL.
+        const url = searchQuery ? `${API_URL}/search?${searchQuery}` : API_URL;
+        
+        const response = await fetch(url);
         const applications = await response.json();
         const tbody = document.getElementById('table-body');
         tbody.innerHTML = ''; // Clear table
@@ -91,3 +94,26 @@ document.getElementById('add-form').addEventListener('submit', async (e) => {
     
     setTimeout(() => msgElement.innerText = '', 3000); // Clear message after 3 seconds
 });
+// Execute search based on filters
+function executeSearch() {
+    const company = document.getElementById('search-company').value.trim();
+    const role = document.getElementById('search-role').value.trim();
+    const status = document.getElementById('search-status').value;
+
+    // Build the query string using URLSearchParams (a clean way to handle URLs in JS)
+    const params = new URLSearchParams();
+    if (company) params.append('company', company);
+    if (role) params.append('role', role);
+    if (status) params.append('status', status);
+
+    // Call loadApplications with the constructed query string
+    loadApplications(params.toString());
+}
+
+// Clear search filters and reload all data
+function resetSearch() {
+    document.getElementById('search-company').value = '';
+    document.getElementById('search-role').value = '';
+    document.getElementById('search-status').value = '';
+    loadApplications(); // Loads everything
+}

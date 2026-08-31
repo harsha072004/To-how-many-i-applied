@@ -34,3 +34,10 @@ th { background-color: #f8f9fa; font-weight: 600; color: #555; }
 .badge-APPLIED { background: #cce5ff; color: #004085; }
 .badge-INTERVIEW { background: #d4edda; color: #155724; }
 .badge-REJECTED { background: #f8d7da; color: #721c24; }
+/* Search Bar */
+.search-bar { display: flex; gap: 10px; margin-bottom: 15px; }
+.search-bar input, .search-bar select { flex: 1; margin-bottom: 0; }
+.btn-secondary { background: #34495e; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+.btn-secondary:hover { background: #2c3e50; }
+.btn-outline { background: white; color: #555; border: 1px solid #ccc; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+.btn-outline:hover { background: #eee; }
