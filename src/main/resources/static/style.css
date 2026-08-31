@@ -1,0 +1,36 @@
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background-color: #f4f7f6; color: #333; padding: 20px; }
+.container { max-width: 1200px; margin: auto; }
+header { margin-bottom: 20px; text-align: center; }
+header h1 { color: #2c3e50; }
+
+/* Stats */
+.stats-container { display: flex; gap: 15px; margin-bottom: 30px; }
+.stat-card { background: white; flex: 1; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.stat-card h3 { font-size: 14px; color: #7f8c8d; text-transform: uppercase; }
+.stat-card p { font-size: 28px; font-weight: bold; color: #2c3e50; margin-top: 10px; }
+.stat-card.highlight p { color: #27ae60; }
+
+/* Layout */
+.main-content { display: flex; gap: 20px; align-items: flex-start; }
+.form-section { background: white; padding: 20px; border-radius: 8px; width: 30%; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.table-section { background: white; padding: 20px; border-radius: 8px; width: 70%; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+/* Form Elements */
+h2 { font-size: 18px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+.form-group { margin-bottom: 15px; }
+label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #555; }
+input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+.btn-primary { width: 100%; background: #3498db; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+.btn-primary:hover { background: #2980b9; }
+.message { margin-top: 10px; font-size: 13px; text-align: center; }
+
+/* Table */
+.table-responsive { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+th { background-color: #f8f9fa; font-weight: 600; color: #555; }
+.badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; background: #e0e0e0; }
+.badge-APPLIED { background: #cce5ff; color: #004085; }
+.badge-INTERVIEW { background: #d4edda; color: #155724; }
+.badge-REJECTED { background: #f8d7da; color: #721c24; }
