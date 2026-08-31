@@ -137,4 +137,18 @@ public class JobApplicationService {
         return mapToResponseDTO(updatedApp);
     }
     
+ // 7. Delete a specific application
+    public void deleteApplication(String id) {
+        // Our repository.deleteById returns true if it actually deleted something, false if it couldn't find it
+        boolean isRemoved = repository.deleteById(id);
+        if (!isRemoved) {
+            throw new ApplicationNotFoundException("Cannot delete. Application not found with ID: " + id);
+        }
+    }
+
+    // 8. Delete all applications
+    public void deleteAllApplications() {
+        repository.deleteAll();
+    }
+    
 }
