@@ -3,7 +3,9 @@ package com.e.toHowManyIapplied.service;
 
 
 import org.springframework.stereotype.Service;
-import java.time.LocalDate; 
+import java.time.LocalDate;
+
+import com.e.toHowManyIapplied.dto.ApplicationStatisticsDTO;
 import com.e.toHowManyIapplied.dto.JobApplicationRequestDTO;
 import com.e.toHowManyIapplied.dto.JobApplicationResponseDTO;
 import com.e.toHowManyIapplied.exception.ApplicationNotFoundException;
@@ -11,6 +13,7 @@ import com.e.toHowManyIapplied.model.JobApplication;
 import com.e.toHowManyIapplied.repository.JobApplicationRepository;
 import com.e.toHowManyIapplied.model.ApplicationStatus;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -149,6 +152,27 @@ public class JobApplicationService {
     // 8. Delete all applications
     public void deleteAllApplications() {
         repository.deleteAll();
+    }
+  
+
+    // 9. Get Application Statistics
+    public ApplicationStatisticsDTO getStatistics() {
+        List<JobApplication> applications = repository.findAll();
+        
+        ApplicationStatisticsDTO stats = new ApplicationStatisticsDTO();
+        stats.setTotalApplications(applications.size());
+        
+        // Group by status and count them using Java Streams
+        Map<ApplicationStatus, Long> counts = applications.stream()
+                .collect(Collectors.groupingBy(JobApplication::getStatus, Collectors.counting()));
+        
+        // Ensure every status is in the map, even if the count is 0
+        for (ApplicationStatus status : ApplicationStatus.values()) {
+            counts.putIfAbsent(status, 0L);
+        }
+        
+        stats.setStatusCounts(counts);
+        return stats;
     }
     
 }

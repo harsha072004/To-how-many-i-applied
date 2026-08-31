@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+
+import com.e.toHowManyIapplied.dto.ApplicationStatisticsDTO;
 import com.e.toHowManyIapplied.dto.JobApplicationRequestDTO;
 import com.e.toHowManyIapplied.dto.JobApplicationResponseDTO;
 import com.e.toHowManyIapplied.dto.StatusUpdateDTO;
@@ -40,6 +42,14 @@ public class JobApplicationController {
         return ResponseEntity.ok(applications); // Returns 200 OK
     }
 
+
+    // 9. Get Statistics
+    @GetMapping("/statistics")
+    public ResponseEntity<ApplicationStatisticsDTO> getStatistics() {
+        ApplicationStatisticsDTO stats = service.getStatistics();
+        return ResponseEntity.ok(stats);
+    }
+
     // 3. Get application by ID
     @GetMapping("/{id}")
     public ResponseEntity<JobApplicationResponseDTO> getApplicationById(@PathVariable String id) {
@@ -49,7 +59,7 @@ public class JobApplicationController {
 
   
 
-    // ... inside JobApplicationController class:
+
 
     // 4. Search and filter applications
     @GetMapping("/search")
@@ -83,5 +93,20 @@ public class JobApplicationController {
         
         JobApplicationResponseDTO updatedApplication = service.updateStatus(id, statusUpdateDTO.getStatus());
         return ResponseEntity.ok(updatedApplication);
+    }
+    
+    
+ // 7. Delete a specific application
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteApplication(@PathVariable String id) {
+        service.deleteApplication(id);
+        return ResponseEntity.noContent().build(); // Returns 204 No Content
+    }
+
+    // 8. Delete all applications
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAllApplications() {
+        service.deleteAllApplications();
+        return ResponseEntity.noContent().build(); // Returns 204 No Content
     }
 }
